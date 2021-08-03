@@ -116,16 +116,16 @@ Node4D create_successor(Node4D &node, float steer,int dir) {
 	xlist[0] = node.get_x(n-1) + (dir * MOVE_STEP) * cos(node.get_yaw(n-1));
 	ylist[0] = node.get_y(n-1) + (dir * MOVE_STEP) * sin(node.get_yaw(n-1));
 	yawlist[0] = pi_2_pi(node.get_yaw(n-1) + (dir * MOVE_STEP / WHEELBASE) * tan(to_rad(steer)));
-	yawtlist[0] = pi_2_pi(node.get_yawt(n-1) + (dir * MOVE_STEP / RTR) * sin(node.get_yaw(n-1) - node.get_yawt(n-1)));
-	yawt[0] = pi_2_pi(node.get_yaw_t(n-1) + (dir * MOVE_STEP / RTR) * sin(node.get_yaw(0) - node.get_yaw_t(0)));
+	yawtlist[0] = pi_2_pi(node.get_yawt(n-1) + (dir * MOVE_STEP / RTR) * sin(node.get_yaw(n-1) - node.get_yawt(n-1)));	// Possible Edit for reeds shepp for rigid body
+	yawt[0] = pi_2_pi(node.get_yaw_t(n-1) + (dir * MOVE_STEP / RTR) * sin(node.get_yaw(0) - node.get_yaw_t(0)));		// Possible Edit for reeds shepp for rigid body
 	jacknife_sum = jacknife_sum + abs(pi_2_pi(yawlist[0] - yawtlist[0]));
 
 	for(int i=1;i<nlist;i++) {
 		xlist[i] = xlist[i-1] + (dir * MOVE_STEP) * cos(yawlist[i-1]);
 		ylist[i] = ylist[i-1] + (dir * MOVE_STEP) * sin(yawlist[i-1]);
 		yawlist[i] = pi_2_pi(yawlist[i-1] + (dir * MOVE_STEP / WHEELBASE) * tan(to_rad(steer)));
-		yawtlist[i] = pi_2_pi(yawtlist[i-1] + (dir * MOVE_STEP / RTR) * sin(yawlist[i-1] - yawtlist[i-1]));
-		yawt[i] = pi_2_pi(yawt[i-1] + (dir * MOVE_STEP / RTR) * sin(yawlist[i-1] - yawt[i-1]));
+		yawtlist[i] = pi_2_pi(yawtlist[i-1] + (dir * MOVE_STEP / RTR) * sin(yawlist[i-1] - yawtlist[i-1]));	// Possible Edit for reeds shepp for rigid body
+		yawt[i] = pi_2_pi(yawt[i-1] + (dir * MOVE_STEP / RTR) * sin(yawlist[i-1] - yawt[i-1]));			// Possible Edit for reeds shepp for rigid body
 		jacknife_sum = jacknife_sum + abs(pi_2_pi(yawlist[i] - yawtlist[i]));
 	}
 
@@ -190,16 +190,16 @@ Node4D create_dubins_node(Node4D &start, Node4D &goal) {
 
 	// Sampling the dubins path with the MOVE_STEP
 	double q[3];
-	dubins_yawtlist.push_back(pi_2_pi(start.get_yawt(n-1) + (dir * MOVE_STEP / RTR) * sin(start.get_yaw(n-1) - start.get_yawt(n-1))));
-	dubins_yawt.push_back(pi_2_pi(start.get_yaw_t(n-1) + (dir * MOVE_STEP / RTR) * sin(start.get_yaw(0) - start.get_yaw_t(0))));
+	dubins_yawtlist.push_back(pi_2_pi(start.get_yawt(n-1) + (dir * MOVE_STEP / RTR) * sin(start.get_yaw(n-1) - start.get_yawt(n-1))));	// Possible Edit for reeds shepp for rigid body
+	dubins_yawt.push_back(pi_2_pi(start.get_yaw_t(n-1) + (dir * MOVE_STEP / RTR) * sin(start.get_yaw(0) - start.get_yaw_t(0))));		// Possible Edit for reeds shepp for rigid body
 
 	while (x <  length) {
 		dubins_path_sample(&path, x, q);
 		dubins_xlist.push_back(q[0]);
 		dubins_ylist.push_back(q[1]);
 		dubins_yawlist.push_back(pi_2_pi(q[2]));
-		dubins_yawtlist.push_back(pi_2_pi(dubins_yawtlist[i-1] + (dir * MOVE_STEP / RTR) * sin(dubins_yawlist[i-1] - dubins_yawtlist[i-1])));
-		dubins_yawt.push_back(pi_2_pi(dubins_yawt[i-1] + (dir * MOVE_STEP / RTR) * sin(dubins_yawlist[i-1] - dubins_yawt[i-1])));
+		dubins_yawtlist.push_back(pi_2_pi(dubins_yawtlist[i-1] + (dir * MOVE_STEP / RTR) * sin(dubins_yawlist[i-1] - dubins_yawtlist[i-1])));	// Possible Edit for reeds shepp for rigid body
+		dubins_yawt.push_back(pi_2_pi(dubins_yawt[i-1] + (dir * MOVE_STEP / RTR) * sin(dubins_yawlist[i-1] - dubins_yawt[i-1])));		// Possible Edit for reeds shepp for rigid body
 
 		// pose_stamped.header.stamp = ros::Time::now();
 		// pose_stamped.header.frame_id = "map";
@@ -237,13 +237,13 @@ Node4D create_dubins_node(Node4D &start, Node4D &goal) {
 	// float ctx;
 	// float cty;
 
-	// ctx = (dubins_xlist[0] - deltar * cos(dubins_yawlist[0])) + deltat * cos(dubins_yawt[0]);
-	// cty = (dubins_ylist[0] - deltar * sin(dubins_yawlist[0])) + deltat * sin(dubins_yawt[0]);
+	// ctx = (dubins_xlist[0] - deltar * cos(dubins_yawlist[0])) + deltat * cos(dubins_yawt[0]);	// Possible Edit for reeds shepp for rigid body
+	// cty = (dubins_ylist[0] - deltar * sin(dubins_yawlist[0])) + deltat * sin(dubins_yawt[0]);	// Possible Edit for reeds shepp for rigid body
 
 	// trailer_polygon_array.header.stamp = ros::Time::now();
 	// trailer_polygon_array.header.frame_id = "map";
 	// trailer_polygon_array.polygons.clear();
-	// trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, dubins_yawt[0]));
+	// trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, dubins_yawt[0]));	// Possible Edit for reeds shepp for rigid body
 	// trailer_polyogn_array_pub.publish(trailer_polygon_array);
 
 	// ctx = (dubins_xlist[nlist-1] - deltar * cos(dubins_yawlist[nlist-1])) + deltat * cos(dubins_yawt[nlist-1]);
@@ -251,7 +251,7 @@ Node4D create_dubins_node(Node4D &start, Node4D &goal) {
 
 	// trailer_polygon_array.header.stamp = ros::Time::now();
 	// trailer_polygon_array.header.frame_id = "map";
-	// trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, dubins_yawt[nlist-1]));
+	// trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, dubins_yawt[nlist-1]));	// Possible Edit for reeds shepp for rigid body
 	// trailer_polyogn_array_pub.publish(trailer_polygon_array);
 
 	return Node4D(dubins_xlist, dubins_ylist, dubins_yawlist, dubins_yawtlist, dubins_yawt, 1, -1, 0.0, ind, start.get_ind());
@@ -426,7 +426,7 @@ void visualize_final_path(Node4D &current_node, std::map<int, Node4D> &closed_li
 
 	hybrid_path_pub.publish(path);
 	hybrid_tractor_path_pub.publish(tractor_path);
-	hybrid_trailer_path_pub.publish(trailer_path);
+	hybrid_trailer_path_pub.publish(trailer_path);	// Possible Edit for reeds shepp for rigid body
 
 	int nlist = xlist.size();
 	float cx;
@@ -451,21 +451,21 @@ void visualize_final_path(Node4D &current_node, std::map<int, Node4D> &closed_li
 	robot_polygon_array.polygons.push_back(create_polygon(RL, RW, cx, cy, yawlist[nlist-1]));
 	robot_polyogn_array_pub.publish(robot_polygon_array);
 
-	ctx = (xlist[0] + DELTAT * cos(yawt[0]));
-	cty = (ylist[0] + DELTAT * sin(yawt[0]));
+	ctx = (xlist[0] + DELTAT * cos(yawt[0]));	// Possible Edit for reeds shepp for rigid body
+	cty = (ylist[0] + DELTAT * sin(yawt[0]));	// Possible Edit for reeds shepp for rigid body
 
 	trailer_polygon_array.header.stamp = ros::Time::now();
 	trailer_polygon_array.header.frame_id = "map";
 	trailer_polygon_array.polygons.clear();
-	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, yawt[0]));
+	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, yawt[0]));	// Possible Edit for reeds shepp for rigid body
 	trailer_polyogn_array_pub.publish(trailer_polygon_array);
 
-	ctx = (xlist[nlist-1] + DELTAT * cos(yawt[nlist-1]));
-	cty = (ylist[nlist-1] + DELTAT * sin(yawt[nlist-1]));
+	ctx = (xlist[nlist-1] + DELTAT * cos(yawt[nlist-1]));	// Possible Edit for reeds shepp for rigid body
+	cty = (ylist[nlist-1] + DELTAT * sin(yawt[nlist-1]));	// Possible Edit for reeds shepp for rigid body
 
 	trailer_polygon_array.header.stamp = ros::Time::now();
 	trailer_polygon_array.header.frame_id = "map";
-	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, yawt[nlist-1]));
+	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, yawt[nlist-1]));	// Possible Edit for reeds shepp for rigid body
 	trailer_polyogn_array_pub.publish(trailer_polygon_array);
 
 	if(visualization_final_node) {
@@ -489,13 +489,13 @@ void visualize_final_path(Node4D &current_node, std::map<int, Node4D> &closed_li
 			robot_polygon_array.polygons.push_back(create_polygon(RL, RW, cx, cy, yawlist[i]));
 			robot_polyogn_array_pub.publish(robot_polygon_array);
 
-			ctx = (xlist[i] + DELTAT * cos(yawt[i]));
-			cty = (ylist[i] + DELTAT * sin(yawt[i]));
+			ctx = (xlist[i] + DELTAT * cos(yawt[i]));	// Possible Edit for reeds shepp for rigid body
+			cty = (ylist[i] + DELTAT * sin(yawt[i]));	// Possible Edit for reeds shepp for rigid body
 
 			trailer_polygon_array.header.stamp = ros::Time::now();
 			trailer_polygon_array.header.frame_id = "map";
 			trailer_polygon_array.polygons.clear();
-			trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, yawt[i]));
+			trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, yawt[i]));	// Possible Edit for reeds shepp for rigid body
 			trailer_polyogn_array_pub.publish(trailer_polygon_array);
 		}
 	}
@@ -555,13 +555,13 @@ bool hybrid_astar_plan() {
 	robot_polygon_array.polygons.push_back(create_polygon(RL, RW, cx, cy, syaw));
 	robot_polyogn_array_pub.publish(robot_polygon_array);
 
-	ctx = (sx + DELTAT * cos(syaw));
-	cty = (sy + DELTAT * sin(syaw));
+	ctx = (sx + DELTAT * cos(syaw));	// Possible Edit for reeds shepp for rigid body
+	cty = (sy + DELTAT * sin(syaw));	// Possible Edit for reeds shepp for rigid body
 
 	trailer_polygon_array.header.stamp = ros::Time::now();
 	trailer_polygon_array.header.frame_id = "map";
 	trailer_polygon_array.polygons.clear();
-	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, syaw_t));
+	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, syaw_t));	// Possible Edit for reeds shepp for rigid body
 	trailer_polyogn_array_pub.publish(trailer_polygon_array);
 
 	Node4D start_node = Node4D(sx, sy, syaw, 0, syaw_t, s_ind);
@@ -600,12 +600,12 @@ bool hybrid_astar_plan() {
 	robot_polygon_array.polygons.push_back(create_polygon(RL, RW, cx, cy, gyaw));
 	robot_polyogn_array_pub.publish(robot_polygon_array);
 
-	ctx = (gx + DELTAT * cos(gyaw));
-	cty = (gy + DELTAT * sin(gyaw));
+	ctx = (gx + DELTAT * cos(gyaw));	// Possible Edit for reeds shepp for rigid body
+	cty = (gy + DELTAT * sin(gyaw));	// Possible Edit for reeds shepp for rigid body
 
 	trailer_polygon_array.header.stamp = ros::Time::now();
 	trailer_polygon_array.header.frame_id = "map";
-	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, gyaw_t));
+	trailer_polygon_array.polygons.push_back(create_polygon(TL, TW, ctx, cty, gyaw_t));	// Possible Edit for reeds shepp for rigid body
 	trailer_polyogn_array_pub.publish(trailer_polygon_array);
 
 	Node4D goal_node = Node4D(gx, gy, gyaw, 0, gyaw_t, g_ind);
